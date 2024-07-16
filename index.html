@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)file:///C:/Users/user/Desktop/web33/index.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자기소개서</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f0f0f0; /* 회색 배경 */
+            color: #333; /* 검정색 텍스트 */
+        }
+        h1 {
+            text-align: center;
+            color: #333; /* 검정색 제목 */
+        }
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff; /* 흰색 배경 */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 그림자 효과 */
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .section p {
+            text-indent: 20px;
+        }
+        .game-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .game-button {
+            background-color: #4CAF50; /* 초록색 버튼 */
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .game-button:hover {
+            background-color: #45a049; /* 더 진한 초록색 */
+        }
+        /* 게임 캔버스 스타일 */
+        #gameCanvas {
+            background-color: #eee;
+            border: 1px solid #ccc;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <header>
+            <h1>자기소개서</h1>
+        </header>
+        <section class="section">
+            <h2>인적 사항</h2>
+            <p><strong>이름:</strong> 한혜린</p>
+            <p><strong>나이:</strong> 18세(2007년생)</p>
+            <p><strong>연락처:</strong> 010-4085-0245</p>
+        </section>
+        <section class="section">
+            <h2>학력</h2>
+            <p>졸업 학교: ○○대학교</p>
+            <p>전공: 심리학</p>
+        </section>
+        <section class="section">
+            <h2>경력</h2>
+            <p>경력 사항: 학교에서 10년간 근무</p>
+            <p>주요 업무: 학교에서 공부하기</p>
+        </section>
+        <section class="section">
+            <h2>자기 소개</h2>
+            <p>저는 현재 사동고등학교를 다니고 있는 한혜린입니다. 저는 현재 심리학과를 지망하고 있으며 저의 학업 성적과 생기부를 바탕으로 대학을 진학할 예정입니다. 항상 열정을 잃지 않고 매사에 열정적으로 행동하는 모습을 보여드리겠습니다.</p>
+        </section>
+        <footer>
+            <div class="game-container">
+                <canvas id="gameCanvas" width="400" height="400"></canvas>
+                <br>
+                <button class="game-button" onclick="startGame()">게임 시작하기</button>
+            </div>
+            <p id="gameOverMessage" style="display: none; font-weight: bold; color: red; text-align: center;">게임 오버!</p>
+            <p>이상 자기소개서였습니다. 감사합니다.</p>
+        </footer>
+    </div>
+
+    <script>
+        let canvas;
+        let ctx;
+        let playerX, playerY;
+        let obstacles = [];
+        let gameSpeed = 3;
+        let isGameOver = false;
+
+        function startGame() {
+            canvas = document.getElementById("gameCanvas");
+            ctx = canvas.getContext("2d");
+            playerX = canvas.width / 2;
+            playerY = canvas.height - 50;
+
+            // Clear canvas and reset variables
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            obstacles = [];
+            isGameOver = false;
+
+            // Start game loop
+            draw();
+        }
+
+        function draw() {
+            if (isGameOver) {
+                document.getElementById("gameOverMessage").style.display = "block";
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = "#FF5733";
+            ctx.fillRect(playerX - 15, playerY - 15, 30, 30);
+
+            // Move obstacles and draw
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += gameSpeed;
+                ctx.fillStyle = "#333";
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+
+                // Check collision with player
+                if (isCollision(obstacles[i])) {
+                    isGameOver = true;
+                }
+
+                // Remove obstacles that have passed the canvas
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+            }
+
+            // Generate new obstacles
+            if (Math.random() < 0.03) {
+                let obstacleWidth = Math.random() * (50 - 20) + 20;
+                let obstacleX = Math.random() * (canvas.width - obstacleWidth);
+                let newObstacle = { x: obstacleX, y: -20, width: obstacleWidth, height: 20 };
+                obstacles.push(newObstacle);
+            }
+
+            // Request next frame
+            if (!isGameOver) {
+                requestAnimationFrame(draw);
+            }
+        }
+
+        function isCollision(obstacle) {
+            return (playerX < obstacle.x + obstacle.width &&
+                    playerX + 30 > obstacle.x &&
+                    playerY < obstacle.y + obstacle.height &&
+                    playerY + 30 > obstacle.y);
+        }
+
+        // Keyboard controls
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "ArrowLeft" && playerX > 0) {
+                playerX -= 20;
+            } else if (event.key === "ArrowRight" && playerX < canvas.width - 30) {
+                playerX += 20;
+            }
+        });
+    </script>
+
+
+</body></html>
